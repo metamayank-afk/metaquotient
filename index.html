@@ -243,8 +243,8 @@ h1 span{color:var(--accent)}
       </div>
       <div class="panel info-card">
         <div class="info-card-tag">The Vision</div>
-        <h3>AI Benchmarking</h3>
-        <p>Human responses form a baseline dataset. The long-term goal: benchmark how AI models meta-reason compared to humans. You're contributing to that.</p>
+        <h3>Why Meta Thinking Matters</h3>
+        <p>Most decisions fail not because of lack of knowledge — but because people can't model how others think. Meta thinking is the skill that separates reactive minds from strategic ones. It's learnable.</p>
       </div>
     </div>
     <button class="btn" onclick="startTest()">▶ Start Test</button>
@@ -686,35 +686,46 @@ function saveCard(){
   const btn=document.getElementById('save-btn');
   const orig=btn.textContent;btn.textContent='Generating...';btn.disabled=true;
   const el=document.getElementById('share-card');
-  // Move into viewport temporarily but keep invisible to user
   el.style.position='fixed';el.style.left='0';el.style.top='0';
-  el.style.zIndex='9998';el.style.opacity='0.01';el.style.pointerEvents='none';
-  // Wait a frame for layout
-  requestAnimationFrame(()=>{
-    requestAnimationFrame(()=>{
-      html2canvas(el,{
-        backgroundColor:'#060608',
-        scale:2,
-        useCORS:true,
-        allowTaint:true,
-        logging:false,
-        width:520,
-        height:el.scrollHeight
-      }).then(canvas=>{
-        el.style.position='fixed';el.style.left='-9999px';el.style.top='0';el.style.zIndex='-999';el.style.opacity='1';el.style.pointerEvents='auto';
-        const score=document.getElementById('score-num').textContent||'MQ';
-        const link=document.createElement('a');
-        link.download=`MetaQuotient-${score}.png`;
-        link.href=canvas.toDataURL('image/png');
-        link.click();
-        btn.textContent='✓ Saved!';setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},2000);
-      }).catch(err=>{
-        console.error(err);
-        el.style.position='fixed';el.style.left='-9999px';el.style.zIndex='-999';el.style.opacity='1';
-        btn.textContent='Try Copy instead';setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},2500);
-      });
+  el.style.zIndex='9998';el.style.opacity='1';el.style.pointerEvents='none';
+  el.style.visibility='visible';
+  setTimeout(()=>{
+    html2canvas(el,{
+      backgroundColor:'#060608',
+      scale:2,
+      useCORS:true,
+      allowTaint:true,
+      logging:false,
+      width:520,
+      height:el.scrollHeight,
+      onclone:(clonedDoc)=>{
+        const clonedEl=clonedDoc.getElementById('share-card');
+        clonedEl.style.position='relative';
+        clonedEl.style.left='0';
+        clonedEl.style.top='0';
+        clonedEl.style.opacity='1';
+        clonedEl.style.visibility='visible';
+        clonedEl.style.background='#060608';
+        clonedDoc.querySelectorAll('*').forEach(e=>{
+          const cs=window.getComputedStyle(e);
+          if(cs.fontFamily.includes('Syne'))e.style.fontFamily='Arial Black,Arial,sans-serif';
+          if(cs.fontFamily.includes('DM Mono'))e.style.fontFamily='Courier New,monospace';
+        });
+      }
+    }).then(canvas=>{
+      el.style.position='fixed';el.style.left='-9999px';el.style.zIndex='-999';el.style.opacity='1';el.style.pointerEvents='auto';
+      const score=document.getElementById('score-num').textContent||'MQ';
+      const link=document.createElement('a');
+      link.download=`MetaQuotient-${score}.png`;
+      link.href=canvas.toDataURL('image/png');
+      link.click();
+      btn.textContent='✓ Saved!';setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},2000);
+    }).catch(err=>{
+      console.error(err);
+      el.style.position='fixed';el.style.left='-9999px';el.style.zIndex='-999';el.style.opacity='1';
+      btn.textContent='Try Copy instead';setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},2500);
     });
-  });
+  },300);
 }
 function restartTest(){startTest();}
 </script>
