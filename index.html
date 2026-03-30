@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Meta Quotient — MQ Test</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -547,9 +548,30 @@ function runLoader(){
   let i=0;const el=document.getElementById('loading-label');
   const iv=setInterval(()=>{el.textContent=msgs[i%msgs.length];i++;if(i>=msgs.length){clearInterval(iv);setTimeout(showResults,700);}},650);
 }
+// ── SUPABASE SETUP ──
+const _sb = supabase.createClient(
+  'https://vliegthapmxmhdrrtycg.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsaWVndGhhcG14bWhkcnJ0eWNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NDY4MzcsImV4cCI6MjA5MDQyMjgzN30.39nmC7aqBYJo2B4E8L1GZFoNcok0OYV2QStnglfOpek'
+);
+async function saveResult(sc, tier) {
+  try {
+    await _sb.from('results').insert([{
+      score: sc.total,
+      tier: tier.name,
+      rarity: sc.rarity,
+      loop: sc.loop,
+      trap: sc.trap,
+      consistency: sc.consistency,
+      speed_penalty: speedPenalty,
+      answers: JSON.stringify(answers)
+    }]);
+  } catch(e) { console.error('Supabase save error:', e); }
+}
+
 function showResults(){
   const sc=calcScore();lastScore=sc;
   const tier=getTier(sc.total);
+  saveResult(sc, tier);
   showScreen('screen-result');
   animateScore(sc.total,tier.color);
   const badge=document.getElementById('tier-badge');
